@@ -1,29 +1,33 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  let [relayer]: SignerWithAddress[] = await ethers.getSigners();
+  const BSC_Bridge = await ethers.getContractFactory("Bridge");
+  const ETH_Bridge = await ethers.getContractFactory("Bridge");
+  const BSC_ERC20 = await ethers.getContractFactory("MyERC20");
+  const ETH_ERC20 = await ethers.getContractFactory("MyERC20");
 
-  // We get the contract to deploy
-  const Greeter = await ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const eth_ERC20 = await ETH_ERC20.deploy();
+  const bsc_ERC20 = await BSC_ERC20.deploy();
 
-  await greeter.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+
+  await eth_ERC20.deployed();
+  await bsc_ERC20.deployed();
+
+  const bsc_Bridge = await BSC_Bridge.deploy(relayer.address, bsc_ERC20.address, "ETH");
+  const eth_Bridge = await ETH_Bridge.deploy(relayer.address, eth_ERC20.address, "BSC");
+
+  await bsc_Bridge.deployed();
+  await eth_Bridge.deployed();
+
+  console.log("eth_ERC20 deployed to:", eth_ERC20.address);
+  console.log("bsc_ERC20 deployed to:", bsc_ERC20.address);
+  console.log("bsc_Bridge deployed to:", bsc_Bridge.address);
+  console.log("eth_Bridge deployed to:", eth_Bridge.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
