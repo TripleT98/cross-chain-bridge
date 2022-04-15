@@ -3,7 +3,6 @@ import * as dotenv from "dotenv";
 import {task} from "hardhat/config";
 import {provider as Provider} from "web3-core/types/index.d";
 dotenv.config();
-//import Server from "./../test/server";
 
 let {abi:bridge_abi} = require("./../artifacts/contracts/Bridge.sol/Bridge.json");
 let {abi:erc20_abi} = require("./../artifacts/contracts/ERC20.sol/MyERC20.json");
@@ -17,7 +16,6 @@ let eth_ERC20 = new web3.eth.Contract(erc20_abi, `${envParams.eth_ERC20}`);
 let bsc_ERC20 = new web3.eth.Contract(erc20_abi, `${envParams.bsc_ERC20}`);
 let bsc_Bridge = new web3.eth.Contract(bridge_abi, `${envParams.bsc_Bridge}`);
 let eth_Bridge = new web3.eth.Contract(bridge_abi, `${envParams.eth_Bridge}`);
-
 
 interface SignType {
   gas: string;
@@ -42,5 +40,4 @@ export {
   bsc_ERC20,
   bsc_Bridge,
   eth_Bridge,
-  //Server
 }

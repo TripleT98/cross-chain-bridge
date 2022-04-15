@@ -3,7 +3,7 @@ eth_ERC20,
 bsc_ERC20,
 bsc_Bridge,
 eth_Bridge,
-/*Server*/} from "./task";
+} from "./task";
 import mint from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -29,7 +29,7 @@ export default function swapTask(){
   .addParam("tochain", "From chain")
   .setAction(async(taskArgs: TaskArgsType, hre)=>{
     try{
-      ///let [relayer]:SignerWithAddress[] = await hre.ethers.getSigners();
+      //let [relayer]:SignerWithAddress[] = await hre.ethers.getSigners();
       //let server = new Server(relayer);
       let {gas, privatekey, to, receiver, amount, fromchain, tochain} = taskArgs;
       await mint(envParams.PRIVATE_KEY as string, to, amount, fromchain, gas);
