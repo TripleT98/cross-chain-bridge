@@ -13,6 +13,7 @@ export default async function mint(minter_private_key: string, to: string, amoun
       let data: string = await eth_ERC20.methods.mint(to, amount).encodeABI();
       let sign = await getSign({gas, to: envParams.eth_ERC20 as string, privatekey:minter_private_key, data});
       let transation = await web3.eth.sendSignedTransaction(sign.rawTransaction);
+      console.log(await eth_ERC20.methods.balanceOf(to).call());
   }
 }catch(e: any){
   console.log(e.message);
