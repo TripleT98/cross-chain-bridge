@@ -15,11 +15,13 @@ type TaskArgsType = {
   amount: string;
   fromchain: string;
   tochain: string;
+  token: string;
 }
 
 
 export default function swapTask(){
   task("swap", "Tokens swap between two chains")
+  .addParam("token", "Token address")
   .addParam("gas", "Gas usage limit for this transation")
   .addParam("privatekey", "You private key")
   .addParam("to", "Address of token contract you wanna interact")
@@ -30,8 +32,8 @@ export default function swapTask(){
   .setAction(async(taskArgs: TaskArgsType, hre)=>{
     try{
       let {ethers} = hre;
-      let {gas, privatekey, to, receiver, amount, fromchain, tochain} = taskArgs;
-      await mint(envParams.PRIVATE_KEY as string, envParams.PUBLIC_KEY as string, amount, fromchain, gas);
+      let {gas, privatekey, to, receiver, amount, fromchain, tochain, token} = taskArgs;
+      await mint(token, envParams.PRIVATE_KEY as string, envParams.PUBLIC_KEY as string, amount, fromchain, gas);
       let current_bridge;
       let address;
       if(fromchain === "BSC"){
@@ -43,11 +45,11 @@ export default function swapTask(){
       }else{
         throw new Error(`This bridge doesn't service ${fromchain}`);
       }
-      let data = await current_bridge.methods.swap(receiver, amount, tochain).encodeABI();
+      let data = await current_bridge.methods.swap(token, receiver, amount, tochain).encodeABI();
       let sign = await getSign({gas,privatekey,data,to:address});
       let transaction = await web3.eth.sendSignedTransaction(sign.rawTransaction);
 
-      let msg:string = web3.utils.soliditySha3(envParams.PUBLIC_KEY as string, receiver, amount, envParams.nonce as string) as string;
+      let msg:string = web3.utils.soliditySha3(fromchain, token, envParams.PUBLIC_KEY as string, receiver, amount, envParams.nonce as string) as string;
       let signature = await web3.eth.accounts.sign(msg, envParams.PRIVATE_KEY as string);
       let v = signature.v == "0x1c"?28:27;
       let r = signature.r;

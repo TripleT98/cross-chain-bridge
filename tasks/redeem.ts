@@ -19,12 +19,14 @@ type TaskArgsType = {
   v:string;
   nonce:string;
   from:string;
+  token:string;
 }
 
 //address _from, address _to, uint _amount, uint _nonce, bytes32 r, bytes32 s, uint8 v
 
 export default function redeemTask(){
   task("redeem", "Redeem tokens")
+  .addParam("token", "Token address")
   .addParam("gas", "Gas usage limit for this transation")
   .addParam("privatekey", "You private key")
   .addParam("to", "Address of contract you wanna interact")
@@ -38,7 +40,7 @@ export default function redeemTask(){
   .addParam("publickey", "Your public key")
   .setAction(async(taskArgs: TaskArgsType, hre)=>{
     try{
-      let {gas, privatekey, to, receiver, amount, fromchain, nonce, r, s, v, from} = taskArgs;
+      let {gas, privatekey, to, receiver, amount, fromchain, nonce, r, s, v, from, token} = taskArgs;
       let current_bridge;
       if(fromchain === "BSC"){
         current_bridge = bsc_Bridge;
@@ -47,7 +49,7 @@ export default function redeemTask(){
       }else{
         throw new Error(`This bridge doesn't service ${fromchain}`);
       }
-      let data = await current_bridge.methods.redeem(from, envParams.PUBLIC_KEY as string, amount, nonce, r, s, v).encodeABI();
+      let data = await current_bridge.methods.redeem(token, from, envParams.PUBLIC_KEY as string, amount, nonce, r, s, v).encodeABI();
       let sign = await getSign({gas,privatekey,data,to});
       let transaction = await web3.eth.sendSignedTransaction(sign.rawTransaction);
       console.log(transaction.transactionHash);

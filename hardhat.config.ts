@@ -15,12 +15,12 @@ const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
       rinkeby:{
-       url:process.env.INFURA_URL,
-       accounts:[`${process.env.PRIVATE_KEY}`]
+       url:process.env.INFURA_URL as string,
+       accounts:[`${process.env.PRIVATE_KEY as string}`]
      }
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.ETHERSCAN_API_KEY as string
   },
 };
 

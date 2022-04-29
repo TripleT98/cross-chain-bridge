@@ -9,6 +9,7 @@ type Params = {
   from: string;
   from_chain: string;
   to_chain: string;
+  token: string;
 }
 
 export type ReturnedParams = {
@@ -21,6 +22,7 @@ export type ReturnedParams = {
   v: number;
   from_chain: string;
   to_chain: string;
+  token: string;
 }
 
 type DataBase = {
@@ -51,7 +53,7 @@ export default class Server implements IServer{
   };
 
   async sign(params: Params):Promise<any>{
-    let {to, amount, from, from_chain, to_chain} = params;
+    let {token, to, amount, from, from_chain, to_chain} = params;
     try{
     let msg: string = web3.utils.soliditySha3(from, to) as string;
     let current_nonce: number | undefined = this.dataBase.nonced.get(msg);
@@ -65,7 +67,7 @@ export default class Server implements IServer{
       current_nonce += 1;
     }
     current_swap = this.dataBase.params.get(msg) as ReturnedParams[];
-    msg = web3.utils.soliditySha3(from, to, amount, current_nonce) as string;
+    msg = web3.utils.soliditySha3(from_chain, token, from, to, amount, current_nonce) as string;
     let signature = await this.relayer.signMessage(ethers.utils.arrayify(msg));
     let sig = await ethers.utils.splitSignature(signature);
     let {r,s,v} = sig;
@@ -79,9 +81,11 @@ export default class Server implements IServer{
       v,
       from_chain,
       to_chain,
+      token
     };
     current_swap.push(params);
   }catch(e:any){
+    console.log(e.message);
     return {success: false}
   }
     return {success: true};
